@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ragnar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0f0e;
+    --char:#15191a;
+    --plank:#1d2422;
+    --iron:#3a4644;
+    --bone:#d8cdb4;
+    --ember:#b3402a;
+    --ember-bright:#d9572e;
+    --gold:#c9a24b;
+    --gold-dim:#8a6f33;
+    --runic:#5f8f80;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(201,162,75,0.05), transparent 60%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0 2px, transparent 2px 90px),
+      var(--ink);
+    color:var(--bone);
+    font-family:'IM Fell English', serif;
+    min-height:100vh;
+  }
+  h1,h2,h3,.brand{font-family:'Cinzel Decorative', serif;}
+  .runes{font-family:'Cinzel', serif; letter-spacing:2px;}
+  a{color:var(--gold);}
+
+  /* ---------- LOGIN ---------- */
+  #login-screen{
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh; padding:24px;
+  }
+  .shield{
+    width:380px;
+    background:linear-gradient(180deg, var(--plank), var(--char));
+    border:2px solid var(--gold-dim);
+    border-radius:6px;
+    box-shadow:0 0 0 1px rgba(201,162,75,0.15), 0 30px 60px rgba(0,0,0,0.6);
+    padding:38px 34px 30px;
+    position:relative;
+  }
+  .shield::before{
+    content:"";
+    position:absolute; inset:10px;
+    border:1px solid rgba(201,162,75,0.25);
+    border-radius:4px;
+    pointer-events:none;
+  }
+  .axe-divider{
+    width:60px;height:3px;margin:14px auto 22px;
+    background:linear-gradient(90deg, transparent, var(--ember), transparent);
+  }
+  .shield h1{
+    text-align:center; font-size:2.1rem; margin:0;
+    color:var(--gold);
+    text-shadow:0 0 18px rgba(201,162,75,0.35);
+    letter-spacing:3px;
+  }
+  .shield .tagline{
+    text-align:center; color:var(--iron); font-size:0.78rem;
+    letter-spacing:4px; text-transform:uppercase; margin-top:4px;
+    color:#7f8c89;
+  }
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block; font-size:0.78rem; letter-spacing:2px; text-transform:uppercase;
+    color:var(--gold-dim); margin-bottom:6px; font-family:'Cinzel',serif;
+  }
+  .field input{
+    width:100%; padding:11px 12px; background:var(--ink);
+    border:1px solid var(--iron); color:var(--bone);
+    font-family:'IM Fell English', serif; font-size:1rem;
+    border-radius:3px; outline:none;
+  }
+  .field input:focus{ border-color:var(--ember-bright); box-shadow:0 0 0 2px rgba(217,87,46,0.2); }
+  .login-btn{
+    width:100%; padding:12px; margin-top:8px;
+    background:linear-gradient(180deg, var(--ember-bright), var(--ember));
+    border:1px solid #7a2a1a; color:#fff0e2; cursor:pointer;
+    font-family:'Cinzel Decorative', serif; letter-spacing:2px; font-size:0.95rem;
+    border-radius:3px; transition:transform 0.15s, box-shadow 0.15s;
+  }
+  .login-btn:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(217,87,46,0.35); }
+  .login-error{
+    color:var(--ember-bright); font-size:0.85rem; text-align:center;
+    min-height:18px; margin-top:10px;
+  }
+  .hint{
+    text-align:center; margin-top:16px; font-size:0.75rem; color:#5b6361;
+  }
+
+  /* ---------- APP ---------- */
+  #app{ display:none; min-height:100vh; }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 28px; background:linear-gradient(180deg, var(--plank), var(--char));
+    border-bottom:2px solid var(--gold-dim);
+  }
+  .topbar .brand{ font-size:1.4rem; color:var(--gold); letter-spacing:3px; }
+  .topbar .brand span{ color:var(--ember-bright); }
+  .nav-right{ display:flex; align-items:center; gap:18px; }
+  .nav-btn{
+    background:none; border:1px solid var(--iron); color:var(--bone);
+    padding:7px 14px; border-radius:3px; cursor:pointer;
+    font-family:'Cinzel',serif; font-size:0.8rem; letter-spacing:1px;
+  }
+  .nav-btn:hover{ border-color:var(--gold); color:var(--gold); }
+  .user-chip{ font-size:0.85rem; color:#a3afac; }
+  .user-chip b{ color:var(--gold); }
+
+  .tabs{
+    display:flex; gap:6px; padding:14px 28px 0; background:var(--char);
+    border-bottom:1px solid var(--iron); flex-wrap:wrap;
+  }
+  .tab{
+    padding:10px 18px; cursor:pointer; color:#8b9694;
+    font-family:'Cinzel',serif; font-size:0.85rem; letter-spacing:1px;
+    border-bottom:2px solid transparent;
+  }
+  .tab.active{ color:var(--gold); border-bottom-color:var(--ember); }
+
+  .view{ display:none; padding:30px 36px; max-width:1100px; margin:0 auto; }
+  .view.active{ display:block; }
+
+  .hero{
+    border:1px solid var(--gold-dim); border-radius:6px; padding:34px;
+    background:
+      linear-gradient(180deg, rgba(201,162,75,0.05), transparent),
+      var(--plank);
+    margin-bottom:26px; position:relative; overflow:hidden;
+  }
+  .hero h2{ margin:0 0 8px; font-size:1.9rem; color:var(--bone); letter-spacing:1px; }
+  .hero p{ color:#9aa6a3; max-width:640px; line-height:1.6; }
+  .hero .glow{
+    position:absolute; right:-60px; top:-60px; width:220px; height:220px;
+    background:radial-gradient(circle, rgba(217,87,46,0.18), transparent 70%);
+  }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:26px; }
+  .card{
+    border:1px solid var(--iron); background:var(--plank); border-radius:6px;
+    padding:18px 20px;
+  }
+  .card h3{ margin:0 0 6px; font-size:0.95rem; color:var(--gold); letter-spacing:1px; }
+  .card .stat{ font-size:1.8rem; color:var(--bone); font-family:'Cinzel Decorative',serif; }
+  .card .sub{ color:#7f8c89; font-size:0.8rem; }
+
+  .section-title{
+    font-size:1.1rem; color:var(--gold); letter-spacing:2px; margin:0 0 14px;
+    border-bottom:1px solid var(--iron); padding-bottom:8px;
+  }
+
+  /* notes */
+  .note-form{ display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+  .note-form input, .note-form textarea{
+    flex:1; min-width:180px; padding:10px; background:var(--ink);
+    border:1px solid var(--iron); color:var(--bone); border-radius:3px;
+    font-family:'IM Fell English', serif;
+  }
+  .note-list{ display:grid; gap:12px; }
+  .note-item{
+    border:1px solid var(--iron); border-left:3px solid var(--ember);
+    background:var(--plank); padding:14px 16px; border-radius:4px;
+    position:relative;
+  }
+  .note-item h4{ margin:0 0 6px; color:var(--bone); }
+  .note-item p{ margin:0; color:#9aa6a3; white-space:pre-wrap; }
+  .note-item time{ display:block; margin-top:8px; font-size:0.72rem; color:#5b6361; }
+  .del-btn{
+    position:absolute; top:10px; right:10px; background:none; border:none;
+    color:var(--ember-bright); cursor:pointer; font-size:0.85rem;
+  }
+
+  /* files */
+  .file-drop{
+    border:1px dashed var(--gold-dim); border-radius:6px; padding:26px;
+    text-align:center; color:#9aa6a3; margin-bottom:18px; cursor:pointer;
+  }
+  .file-drop:hover{ border-color:var(--gold); color:var(--gold); }
+  .file-list{ display:grid; gap:10px; }
+  .file-row{
+    display:flex; align-items:center; justify-content:space-between;
+    border:1px solid var(--iron); background:var(--plank); padding:10px 14px; border-radius:4px;
+  }
+  .file-row .fname{ color:var(--bone); }
+  .file-row .fmeta{ font-size:0.75rem; color:#7f8c89; }
+  .file-actions button{
+    background:none; border:1px solid var(--iron); color:var(--bone);
+    padding:5px 10px; border-radius:3px; cursor:pointer; font-size:0.75rem; margin-left:6px;
+  }
+  .file-actions button:hover{ border-color:var(--gold); color:var(--gold); }
+
+  /* security */
+  .sec-item{
+    border:1px solid var(--iron); background:var(--plank); border-radius:4px;
+    padding:14px 16px; margin-bottom:12px; display:flex; gap:14px; align-items:flex-start;
+  }
+  .sec-rune{ color:var(--runic); font-size:1.3rem; font-family:'Cinzel Decorative',serif; }
+  .sec-item h4{ margin:0 0 4px; color:var(--bone); }
+  .sec-item p{ margin:0; color:#9aa6a3; font-size:0.92rem; line-height:1.5; }
+  .tag{
+    display:inline-block; font-size:0.68rem; letter-spacing:1px; padding:2px 8px;
+    border-radius:10px; margin-left:8px; vertical-align:middle;
+  }
+  .tag.high{ background:rgba(179,64,42,0.25); color:var(--ember-bright); border:1px solid var(--ember); }
+  .tag.med{ background:rgba(201,162,75,0.2); color:var(--gold); border:1px solid var(--gold-dim); }
+  .tag.low{ background:rgba(95,143,128,0.2); color:var(--runic); border:1px solid var(--runic); }
+
+  .vault-add{ display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+  .vault-add select, .vault-add input{
+    padding:9px; background:var(--ink); border:1px solid var(--iron); color:var(--bone); border-radius:3px;
+  }
+  .vault-add input{ flex:1; min-width:180px; }
+  .primary-btn{
+    background:linear-gradient(180deg, var(--ember-bright), var(--ember));
+    border:1px solid #7a2a1a; color:#fff0e2; cursor:pointer;
+    font-family:'Cinzel',serif; letter-spacing:1px; padding:9px 16px; border-radius:3px;
+  }
+  .primary-btn:hover{ filter:brightness(1.1); }
+
+  /* profile */
+  .profile-card{
+    display:flex; gap:24px; align-items:center; border:1px solid var(--gold-dim);
+    background:var(--plank); padding:24px; border-radius:6px; margin-bottom:20px;
+  }
+  .avatar{
+    width:84px; height:84px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 35% 30%, var(--gold), var(--ember));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cinzel Decorative',serif; font-size:1.8rem; color:#1a1a1a;
+    border:2px solid var(--gold);
+  }
+  .profile-info h3{ margin:0 0 4px; color:var(--bone); font-size:1.3rem; }
+  .profile-info p{ margin:2px 0; color:#9aa6a3; font-size:0.9rem; }
+
+  footer{
+    text-align:center; padding:24px; color:#4d5654; font-size:0.78rem;
+    letter-spacing:1px;
+  }
+  ::placeholder{ color:#5b6361; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="shield">
+    <h1>RAGNAR</h1>
+    <div class="tagline">enter the hall</div>
+    <div class="axe-divider"></div>
+    <form id="login-form">
+      <div class="field">
+        <label>Username</label>
+        <input id="username" type="text" autocomplete="username" autofocus>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="password" type="password" autocomplete="current-password">
+      </div>
+      <button type="submit" class="login-btn">Cross the Threshold</button>
+      <div class="login-error" id="login-error"></div>
+    </form>
+    <div class="hint">default: ragnar / 12345</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="brand">RAGN<span>A</span>R</div>
+    <div class="nav-right">
+      <span class="user-chip">Welcome, <b id="topbar-user">Ragnar</b></span>
+      <button class="nav-btn" onclick="showView('profile')">Profile</button>
+      <button class="nav-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="home" onclick="showView('home')">Home</div>
+    <div class="tab" data-view="notes" onclick="showView('notes')">Notes</div>
+    <div class="tab" data-view="files" onclick="showView('files')">Files</div>
+    <div class="tab" data-view="security" onclick="showView('security')">Security Vault</div>
+    <div class="tab" data-view="profile" onclick="showView('profile')">Profile</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="hero">
+      <div class="glow"></div>
+      <h2>Hail, <span id="home-user">Ragnar</span>.</h2>
+      <p>This is your private hall — a place to keep notes, files, and cybersecurity intelligence safe from prying eyes. Built for the long watch of a BTech CSE student walking the path of the shield-wall: cybersecurity.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Notes Kept</h3>
+        <div class="stat" id="stat-notes">0</div>
+        <div class="sub">scrolls in your saga</div>
+      </div>
+      <div class="card">
+        <h3>Files Stored</h3>
+        <div class="stat" id="stat-files">0</div>
+        <div class="sub">artifacts in the vault</div>
+      </div>
+      <div class="card">
+        <h3>Security Entries</h3>
+        <div class="stat" id="stat-sec">0</div>
+        <div class="sub">threats and findings logged</div>
+      </div>
+    </div>
+    <p class="runes" style="color:#5b6361;font-size:0.85rem;">"A fortress is not stone alone — it is the watch kept upon it." — kept locally in this browser, for your eyes only.</p>
+  </div>
+
+  <!-- NOTES -->
+  <div class="view" id="view-notes">
+    <div class="section-title">Notes</div>
+    <div class="note-form">
+      <input id="note-title" type="text" placeholder="Title">
+      <textarea id="note-body" rows="2" placeholder="Write your note..."></textarea>
+      <button class="primary-btn" onclick="addNote()">Add Note</button>
+    </div>
+    <div class="note-list" id="note-list"></div>
+  </div>
+
+  <!-- FILES -->
+  <div class="view" id="view-files">
+    <div class="section-title">Files</div>
+    <div class="file-drop" onclick="document.getElementById('file-input').click()">
+      Click to choose a file to store (kept in this browser only)
+    </div>
+    <input type="file" id="file-input" style="display:none" onchange="addFile(event)">
+    <div class="file-list" id="file-list"></div>
+  </div>
+
+  <!-- SECURITY -->
+  <div class="view" id="view-security">
+    <div class="section-title">Security Vault</div>
+    <div class="vault-add">
+      <select id="sec-severity">
+        <option value="high">High</option>
+        <option value="med" selected>Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <input id="sec-title" type="text" placeholder="Threat / finding / tip title">
+      <input id="sec-detail" type="text" placeholder="Details">
+      <button class="primary-btn" onclick="addSec()">Log Entry</button>
+    </div>
+    <div id="sec-list"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="view" id="view-profile">
+    <div class="section-title">Profile</div>
+    <div class="profile-card">
+      <div class="avatar" id="avatar-initial">R</div>
+      <div class="profile-info">
+        <h3 id="profile-name">Ragnar</h3>
+        <p>BTech CSE Student — Cybersecurity Path</p>
+        <p>Role: Shield-bearer of this private hall</p>
+      </div>
+    </div>
+    <div class="card" style="max-width:420px;">
+      <h3>Change Password</h3>
+      <div class="field" style="margin-top:12px;">
+        <label>New Password</label>
+        <input id="new-password" type="password" placeholder="Enter new password">
+      </div>
+      <button class="primary-btn" onclick="changePassword()">Update Password</button>
+      <div id="pw-msg" style="margin-top:10px;font-size:0.85rem;color:var(--gold);"></div>
+    </div>
+  </div>
+
+  <footer>RAGNAR · private hall · all data stored only in this browser</footer>
+</div>
+
+<script>
+const DEFAULTS = { username: 'ragnar', password: '12345' };
+
+/* Safe storage wrapper: falls back to in-memory storage if localStorage
+   is blocked (this happens in some browsers when opening a file directly
+   from disk via file://, rather than through a server). */
+const memoryStore = {};
+let storageWorks = true;
+try {
+  localStorage.setItem('__ragnar_test__', '1');
+  localStorage.removeItem('__ragnar_test__');
+} catch(e){
+  storageWorks = false;
+}
+function rawGet(key){
+  if(storageWorks){
+    try { return localStorage.getItem(key); } catch(e){ return memoryStore[key] ?? null; }
+  }
+  return memoryStore[key] ?? null;
+}
+function rawSet(key, val){
+  if(storageWorks){
+    try { localStorage.setItem(key, val); return; } catch(e){ /* fall through */ }
+  }
+  memoryStore[key] = val;
+}
+const sessionMemory = {};
+function sessionGet(key){
+  try { return sessionStorage.getItem(key); } catch(e){ return sessionMemory[key] ?? null; }
+}
+function sessionSet(key, val){
+  try { sessionStorage.setItem(key, val); return; } catch(e){ /* fall through */ }
+  sessionMemory[key] = val;
+}
+function sessionRemove(key){
+  try { sessionStorage.removeItem(key); } catch(e){}
+  delete sessionMemory[key];
+}
+
+function getAuth(){
+  const stored = rawGet('ragnar_auth');
+  return stored ? JSON.parse(stored) : DEFAULTS;
+}
+function setAuth(a){ rawSet('ragnar_auth', JSON.stringify(a)); }
+
+function getData(key){ return JSON.parse(rawGet(key) || '[]'); }
+function setData(key, val){ rawSet(key, JSON.stringify(val)); }
+
+document.getElementById('login-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const errEl = document.getElementById('login-error');
+  try {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value;
+    const auth = getAuth();
+    if(u === auth.username && p === auth.password){
+      errEl.textContent = '';
+      sessionSet('ragnar_logged_in', '1');
+      enterApp(u);
+    } else {
+      errEl.textContent = 'The gate does not recognize you. Check your name and word.';
+    }
+  } catch(err){
+    errEl.textContent = 'Something went wrong opening the hall: ' + err.message;
+  }
+});
+
+function enterApp(username){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('topbar-user').textContent = username;
+  document.getElementById('home-user').textContent = username;
+  document.getElementById('profile-name').textContent = username;
+  document.getElementById('avatar-initial').textContent = username.charAt(0).toUpperCase();
+  renderNotes(); renderFiles(); renderSec(); updateStats();
+}
+
+function logout(){
+  sessionRemove('ragnar_logged_in');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('username').value='';
+  document.getElementById('password').value='';
+  document.getElementById('login-error').textContent='';
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelector('.tab[data-view="'+name+'"]').classList.add('active');
+}
+
+/* ---- Notes ---- */
+function renderNotes(){
+  const notes = getData('ragnar_notes');
+  const list = document.getElementById('note-list');
+  list.innerHTML = notes.length ? '' : '<p style="color:#5b6361;">No notes yet. Begin your saga above.</p>';
+  notes.slice().reverse().forEach(n=>{
+    const div = document.createElement('div');
+    div.className = 'note-item';
+    div.innerHTML = `<button class="del-btn" onclick="deleteNote(${n.id})">✕</button>
+      <h4>${escapeHtml(n.title)}</h4>
+      <p>${escapeHtml(n.body)}</p>
+      <time>${new Date(n.created).toLocaleString()}</time>`;
+    list.appendChild(div);
+  });
+}
+function addNote(){
+  const title = document.getElementById('note-title').value.trim();
+  const body = document.getElementById('note-body').value.trim();
+  if(!title && !body) return;
+  const notes = getData('ragnar_notes');
+  notes.push({ id: Date.now(), title: title || '(untitled)', body, created: Date.now() });
+  setData('ragnar_notes', notes);
+  document.getElementById('note-title').value='';
+  document.getElementById('note-body').value='';
+  renderNotes(); updateStats();
+}
+function deleteNote(id){
+  setData('ragnar_notes', getData('ragnar_notes').filter(n=>n.id!==id));
+  renderNotes(); updateStats();
+}
+
+/* ---- Files ---- */
+function addFile(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const files = getData('ragnar_files');
+    files.push({ id: Date.now(), name: f.name, size: f.size, type: f.type, data: ev.target.result, added: Date.now() });
+    setData('ragnar_files', files);
+    renderFiles(); updateStats();
+  };
+  reader.readAsDataURL(f);
+  e.target.value = '';
+}
+function renderFiles(){
+  const files = getData('ragnar_files');
+  const list = document.getElementById('file-list');
+  list.innerHTML = files.length ? '' : '<p style="color:#5b6361;">No files stored yet.</p>';
+  files.slice().reverse().forEach(f=>{
+    const row = document.createElement('div');
+    row.className = 'file-row';
+    row.innerHTML = `<div>
+        <div class="fname">${escapeHtml(f.name)}</div>
+        <div class="fmeta">${(f.size/1024).toFixed(1)} KB · ${new Date(f.added).toLocaleDateString()}</div>
+      </div>
+      <div class="file-actions">
+        <button onclick="downloadFile(${f.id})">Download</button>
+        <button onclick="deleteFile(${f.id})">Delete</button>
+      </div>`;
+    list.appendChild(row);
+  });
+}
+function downloadFile(id){
+  const f = getData('ragnar_files').find(x=>x.id===id);
+  if(!f) return;
+  const a = document.createElement('a');
+  a.href = f.data; a.download = f.name; a.click();
+}
+function deleteFile(id){
+  setData('ragnar_files', getData('ragnar_files').filter(f=>f.id!==id));
+  renderFiles(); updateStats();
+}
+
+/* ---- Security Vault ---- */
+function renderSec(){
+  const items = getData('ragnar_sec');
+  const list = document.getElementById('sec-list');
+  list.innerHTML = items.length ? '' : '<p style="color:#5b6361;">No entries logged. Add a finding above.</p>';
+  items.slice().reverse().forEach(s=>{
+    const div = document.createElement('div');
+    div.className = 'sec-item';
+    const tagClass = s.severity === 'high' ? 'high' : s.severity === 'low' ? 'low' : 'med';
+    const tagLabel = s.severity.charAt(0).toUpperCase()+s.severity.slice(1);
+    div.innerHTML = `<div class="sec-rune">ᛟ</div>
+      <div style="flex:1;">
+        <h4>${escapeHtml(s.title)} <span class="tag ${tagClass}">${tagLabel}</span></h4>
+        <p>${escapeHtml(s.detail)}</p>
+      </div>
+      <button class="del-btn" style="position:static;" onclick="deleteSec(${s.id})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function addSec(){
+  const severity = document.getElementById('sec-severity').value;
+  const title = document.getElementById('sec-title').value.trim();
+  const detail = document.getElementById('sec-detail').value.trim();
+  if(!title) return;
+  const items = getData('ragnar_sec');
+  items.push({ id: Date.now(), severity, title, detail, created: Date.now() });
+  setData('ragnar_sec', items);
+  document.getElementById('sec-title').value='';
+  document.getElementById('sec-detail').value='';
+  renderSec(); updateStats();
+}
+function deleteSec(id){
+  setData('ragnar_sec', getData('ragnar_sec').filter(s=>s.id!==id));
+  renderSec(); updateStats();
+}
+
+/* ---- Profile ---- */
+function changePassword(){
+  const np = document.getElementById('new-password').value;
+  const msg = document.getElementById('pw-msg');
+  if(!np || np.length < 3){
+    msg.style.color = 'var(--ember-bright)';
+    msg.textContent = 'Choose a stronger password (3+ characters).';
+    return;
+  }
+  const auth = getAuth();
+  auth.password = np;
+  setAuth(auth);
+  document.getElementById('new-password').value = '';
+  msg.style.color = 'var(--gold)';
+  msg.textContent = 'Password updated. Use it next time you cross the gate.';
+}
+
+function updateStats(){
+  document.getElementById('stat-notes').textContent = getData('ragnar_notes').length;
+  document.getElementById('stat-files').textContent = getData('ragnar_files').length;
+  document.getElementById('stat-sec').textContent = getData('ragnar_sec').length;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* auto-login if session active (refresh persistence) */
+window.addEventListener('load', function(){
+  if(sessionGet('ragnar_logged_in') === '1'){
+    const auth = getAuth();
+    enterApp(auth.username);
+  }
+});
+</script>
+</body>
+</html>
